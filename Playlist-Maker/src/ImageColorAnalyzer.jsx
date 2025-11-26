@@ -56,6 +56,7 @@ const ImageColorAnalyzer = () => {
   const [selectedTrackUris, setSelectedTrackUris] = useState([]);
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
   const [createdPlaylistUrl, setCreatedPlaylistUrl] = useState(null);
+  const [searchOffset, setSearchOffset] = useState(0);
 
   const imgRef = useRef(null);
   const dataFetchCalled = useRef(false);
@@ -402,8 +403,12 @@ const vibeToSearchQueries = {
   // SONG FETCHING (REWORKED)
   // ==============================
 
-  const getRecommendations = async () => {
-      console.log("🔍 Getting TRENDING song recommendations...");
+  // ==============================
+  // SONG FETCHING (WITH LOAD MORE)
+  // ==============================
+
+  const getRecommendations = async (isLoadMore = false) => {
+      console.log(`🔍 ${isLoadMore ? "Loading more" : "Getting fresh"} recommendations...`);
 
       if (!spotifyToken) {
           alert("Error: Please log in to Spotify.");
@@ -415,22 +420,39 @@ const vibeToSearchQueries = {
       }
       
       setIsLoadingTracks(true);
-      setTracks([]); 
-      setSelectedTrackUris([]);
-      setCreatedPlaylistUrl(null);
 
+      // If NOT loading more (fresh start), reset everything
+      if (!isLoadMore) {
+          setTracks([]); 
+          setSelectedTrackUris([]);
+          setCreatedPlaylistUrl(null);
+          setSearchOffset(0); 
+      }
+
+      // Calculate the offset: If loading more, use current state; otherwise 0.
+      // We increment by 15 roughly to jump pages.
+      const currentOffset = isLoadMore ? searchOffset + 10 : 0;
+      
       const queries = vibeToSearchQueries[detectedVibe];
       
       try {
           let poolOfTracks = [];
-          const seenUniqueKeys = new Set(); // Stores "SongName-ArtistName"
+          const seenUniqueKeys = new Set(); 
           
-          // 1. Fetch raw candidates from all queries
+          // Add existing tracks to "seen" list so we don't fetch duplicates when loading more
+          if (isLoadMore) {
+              tracks.forEach(t => {
+                  const key = `${t.name.toLowerCase().trim()}-${t.artists[0].name.toLowerCase().trim()}`;
+                  seenUniqueKeys.add(key);
+              });
+          }
+          
           for (let i = 0; i < queries.length; i++) {
               const query = queries[i];
               
               try {
-                  const response = await axios.get("https://api.spotify.com/v1/search", { // Fixed URL (was googleusercontent placeholder)
+                  // Use standard Spotify API URL
+                  const response = await axios.get("https://api.spotify.com/v1/search", { 
                       headers: {
                           'Authorization': `Bearer ${spotifyToken}`,
                           'Content-Type': 'application/json'
@@ -438,51 +460,49 @@ const vibeToSearchQueries = {
                       params: {
                           q: query,
                           type: 'track',
-                          limit: 10, // Fetch more than needed to filter later
+                          limit: 10, 
+                          offset: currentOffset, // <--- MAGIC: Asks for the next page
                           market: 'US'
                       }
                   });
 
                   if (response?.data?.tracks?.items) {
                       response.data.tracks.items.forEach(track => {
-                          // Create a unique key to avoid "Song (Radio Edit)" vs "Song (Album Version)"
                           const uniqueKey = `${track.name.toLowerCase().trim()}-${track.artists[0].name.toLowerCase().trim()}`;
 
-                          // FILTER: Must have popularity > 50 (to ensure trending/popular)
-                          // FILTER: Must not be a duplicate
-                          if (track.popularity > 50 && !seenUniqueKeys.has(uniqueKey)) {
+                          // Logic: Popularity > 40, No Duplicates
+                          if (track.popularity > 40 && !seenUniqueKeys.has(uniqueKey)) {
                               seenUniqueKeys.add(uniqueKey);
                               poolOfTracks.push(track);
                           }
                       });
                   }
                   
-                  // Tiny delay to be nice to API
-                  if (i < queries.length - 1) {
-                      await new Promise(resolve => setTimeout(resolve, 100));
-                  }
-                  
               } catch (searchError) {
-                  console.warn(`Query "${query}" failed, skipping.`);
+                  console.warn(`Query "${query}" failed.`);
               }
           }
 
-          // 2. Sort the pool by Popularity (Highest first)
+          // Sort by popularity
           poolOfTracks.sort((a, b) => b.popularity - a.popularity);
 
-          // 3. Shuffle the top 20 slightly so it's not the exact same order every time
-          // (Optional: remove this slice if you want pure popularity order)
-          const topCandidates = poolOfTracks.slice(0, 20); 
-          const shuffled = topCandidates.sort(() => 0.5 - Math.random());
+          // Randomize slightly so it's not static
+          const shuffled = poolOfTracks.sort(() => 0.5 - Math.random());
+          const finalSelection = shuffled.slice(0, 8); // Grab 8 new songs
 
-          // 4. Select final 12
-          const finalSelection = shuffled.slice(0, 12);
-
-          console.log(`📊 Found ${poolOfTracks.length} candidates, selected ${finalSelection.length}`);
+          console.log(`📊 Found ${finalSelection.length} new tracks`);
 
           if (finalSelection.length > 0) {
-              setTracks(finalSelection);
-              setSelectedTrackUris(finalSelection.map(t => t.uri));
+              if (isLoadMore) {
+                  setTracks(prev => [...prev, ...finalSelection]); // Append
+                  setSearchOffset(prev => prev + 10); // Update offset for next time
+              } else {
+                  setTracks(finalSelection); // Replace
+                  setSearchOffset(10); // Set initial offset
+                  setSelectedTrackUris(finalSelection.map(t => t.uri)); // Auto-select first batch
+              }
+          } else if (isLoadMore) {
+              alert("No more unique popular songs found for this vibe!");
           } else {
               alert(`No popular songs found for ${detectedVibe}.`);
           }
@@ -490,10 +510,7 @@ const vibeToSearchQueries = {
       } catch (error) {
           console.error("🔥 Error:", error);
           if (error.response?.status === 401) {
-              handleLogout();
-              alert("Session expired. Please login again.");
-          } else {
-              alert("Failed to fetch songs.");
+              handleLogout(); // Auto-logout on token expiry
           }
       } finally {
           setIsLoadingTracks(false);
@@ -619,10 +636,16 @@ const vibeToSearchQueries = {
               <p style={{fontSize: '2.5rem', fontWeight: 'bold', color: '#1DB954', margin: '10px 0'}}>{detectedVibe}</p>
               
               {spotifyToken ? (
-                  <button onClick={getRecommendations} disabled={isLoadingTracks} className="analyze-button" style={{marginTop: '10px'}}>
-                      {isLoadingTracks ? 'Fetching Songs...' : `2. Get ${detectedVibe} Songs`}
-                  </button>
-              ) : (
+                  // CHANGE: Added arrow function () => getRecommendations(false)
+                  <button 
+                      onClick={() => getRecommendations(false)} 
+                      disabled={isLoadingTracks} 
+                      className="analyze-button" 
+                  style={{marginTop: '10px'}}
+              >
+                  {isLoadingTracks ? 'Fetching Songs...' : `2. Get ${detectedVibe} Songs`}
+              </button>
+          ) : (
                  <p>Login to Spotify above to unlock song suggestions.</p>
               )}
           </div>
@@ -681,6 +704,23 @@ const vibeToSearchQueries = {
                         </div>
                     )})}
                 </div>
+                <div style={{textAlign: 'center', marginTop: '20px'}}>
+                  <button 
+                      onClick={() => getRecommendations(true)} 
+                      disabled={isLoadingTracks}
+                      className="analyze-button"
+                      style={{
+                          backgroundColor: 'white', 
+                          color: '#333', 
+                          border: '1px solid #ccc',
+                          fontSize: '0.9rem',
+                          padding: '8px 20px',
+                          cursor: 'pointer'
+                      }}
+                  >
+                      {isLoadingTracks ? 'Loading...' : '+ Load More Songs'}
+                  </button>
+              </div>
             </div>
           )}
 
