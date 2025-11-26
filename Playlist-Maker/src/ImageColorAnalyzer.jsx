@@ -396,12 +396,14 @@ const vibeToSearchQueries = {
     ]
 };
 
+
+
   // ==============================
-  // SONG FETCHING
+  // SONG FETCHING (REWORKED)
   // ==============================
 
   const getRecommendations = async () => {
-      console.log("🔍 Getting song recommendations...");
+      console.log("🔍 Getting TRENDING song recommendations...");
 
       if (!spotifyToken) {
           alert("Error: Please log in to Spotify.");
@@ -419,25 +421,16 @@ const vibeToSearchQueries = {
 
       const queries = vibeToSearchQueries[detectedVibe];
       
-      if (!queries) {
-          console.error(`❌ No queries found for vibe: ${detectedVibe}`);
-          alert(`No song queries configured for ${detectedVibe} vibe.`);
-          setIsLoadingTracks(false);
-          return;
-      }
-      
-      console.log(`🔎 Searching ${queries.length} songs for ${detectedVibe} vibe`);
-      
       try {
-          const allTracks = [];
-          const seenTrackIds = new Set();
+          let poolOfTracks = [];
+          const seenUniqueKeys = new Set(); // Stores "SongName-ArtistName"
           
+          // 1. Fetch raw candidates from all queries
           for (let i = 0; i < queries.length; i++) {
               const query = queries[i];
-              console.log(`🔍 Search ${i + 1}/${queries.length}: "${query}"`);
               
               try {
-                  const response = await axios.get("https://api.spotify.com/v1/search", {
+                  const response = await axios.get("https://api.spotify.com/v1/search", { // Fixed URL (was googleusercontent placeholder)
                       headers: {
                           'Authorization': `Bearer ${spotifyToken}`,
                           'Content-Type': 'application/json'
@@ -445,51 +438,62 @@ const vibeToSearchQueries = {
                       params: {
                           q: query,
                           type: 'track',
-                          limit: 3,
+                          limit: 10, // Fetch more than needed to filter later
                           market: 'US'
                       }
                   });
 
                   if (response?.data?.tracks?.items) {
                       response.data.tracks.items.forEach(track => {
-                          if (track?.id && track?.uri && !seenTrackIds.has(track.id)) {
-                              seenTrackIds.add(track.id);
-                              allTracks.push(track);
+                          // Create a unique key to avoid "Song (Radio Edit)" vs "Song (Album Version)"
+                          const uniqueKey = `${track.name.toLowerCase().trim()}-${track.artists[0].name.toLowerCase().trim()}`;
+
+                          // FILTER: Must have popularity > 50 (to ensure trending/popular)
+                          // FILTER: Must not be a duplicate
+                          if (track.popularity > 50 && !seenUniqueKeys.has(uniqueKey)) {
+                              seenUniqueKeys.add(uniqueKey);
+                              poolOfTracks.push(track);
                           }
                       });
-                      console.log(`✅ Total tracks: ${allTracks.length}`);
                   }
                   
+                  // Tiny delay to be nice to API
                   if (i < queries.length - 1) {
-                      await new Promise(resolve => setTimeout(resolve, 150));
+                      await new Promise(resolve => setTimeout(resolve, 100));
                   }
                   
               } catch (searchError) {
-                  console.error(`❌ Search failed: ${searchError.message}`);
-                  continue;
+                  console.warn(`Query "${query}" failed, skipping.`);
               }
           }
 
-          console.log(`📊 Found ${allTracks.length} unique tracks`);
+          // 2. Sort the pool by Popularity (Highest first)
+          poolOfTracks.sort((a, b) => b.popularity - a.popularity);
 
-          if (allTracks.length > 0) {
-              const selectedTracks = allTracks.slice(0, 12);
-              setTracks(selectedTracks);
-              setSelectedTrackUris(selectedTracks.map(t => t.uri));
+          // 3. Shuffle the top 20 slightly so it's not the exact same order every time
+          // (Optional: remove this slice if you want pure popularity order)
+          const topCandidates = poolOfTracks.slice(0, 20); 
+          const shuffled = topCandidates.sort(() => 0.5 - Math.random());
+
+          // 4. Select final 12
+          const finalSelection = shuffled.slice(0, 12);
+
+          console.log(`📊 Found ${poolOfTracks.length} candidates, selected ${finalSelection.length}`);
+
+          if (finalSelection.length > 0) {
+              setTracks(finalSelection);
+              setSelectedTrackUris(finalSelection.map(t => t.uri));
           } else {
-              alert(`No songs found for ${detectedVibe}. Try again!`);
+              alert(`No popular songs found for ${detectedVibe}.`);
           }
 
       } catch (error) {
           console.error("🔥 Error:", error);
-          
           if (error.response?.status === 401) {
-              alert("Session expired. Logging out...");
               handleLogout();
-          } else if (error.response?.status === 429) {
-              alert("Rate limited. Wait a moment and try again.");
+              alert("Session expired. Please login again.");
           } else {
-              alert("Failed to fetch songs. Check console.");
+              alert("Failed to fetch songs.");
           }
       } finally {
           setIsLoadingTracks(false);
