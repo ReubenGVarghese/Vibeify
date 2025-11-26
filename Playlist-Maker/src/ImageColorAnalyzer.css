@@ -1,0 +1,654 @@
+/* ImageColorAnalyzer.css - Enhanced Spotify Premium Style */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(180deg, #121212 0%, #0a0a0a 100%);
+  font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+.analyzer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  background: transparent;
+  min-height: 100vh;
+}
+
+/* ==================== HEADER ==================== */
+.analyzer-container > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.analyzer-container h2 {
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.05em;
+  background: linear-gradient(135deg, #ffffff 0%, #b3b3b3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==================== BUTTONS ==================== */
+button {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 14px 36px;
+  border-radius: 500px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.3, 0, 0.5, 1);
+  text-transform: none;
+  letter-spacing: 0.1em;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Primary Button (Spotify Green) */
+.analyze-button,
+button[style*="backgroundColor: rgb(29, 185, 84)"],
+button[style*="backgroundColor:#1DB954"] {
+  background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%) !important;
+  color: #000000 !important;
+  font-weight: 800;
+}
+
+.analyze-button::before,
+button[style*="backgroundColor: rgb(29, 185, 84)"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.analyze-button:hover:not(:disabled),
+button[style*="backgroundColor: rgb(29, 185, 84)"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1ed760 0%, #1fdf64 100%) !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(29, 185, 84, 0.4);
+}
+
+.analyze-button:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.analyze-button:active:not(:disabled) {
+  background: linear-gradient(135deg, #1aa34a 0%, #1DB954 100%) !important;
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(29, 185, 84, 0.3);
+}
+
+/* Disabled State */
+.analyze-button:disabled,
+button:disabled {
+  background: #535353 !important;
+  color: #b3b3b3 !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.5;
+}
+
+/* Login Button */
+button[onClick*="handleSpotifyLogin"] {
+  background: #000000 !important;
+  color: #1DB954 !important;
+  border: 2px solid #1DB954 !important;
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.3);
+}
+
+button[onClick*="handleSpotifyLogin"]:hover {
+  background: #1DB954 !important;
+  color: #000000 !important;
+  border-color: #1DB954 !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 30px rgba(29, 185, 84, 0.5);
+}
+
+/* Logout Button */
+button[onClick*="handleLogout"] {
+  background: transparent !important;
+  color: #b3b3b3 !important;
+  padding: 8px 16px !important;
+  text-decoration: none !important;
+  border: none;
+  font-weight: 600;
+  box-shadow: none !important;
+}
+
+button[onClick*="handleLogout"]:hover {
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+/* ==================== ALERT BOX ==================== */
+.analyzer-container > p {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-left: 4px solid #60a5fa;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* ==================== FILE INPUT ==================== */
+.file-input,
+input[type="file"] {
+  width: 100%;
+  padding: 24px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #282828 100%);
+  border: 2px dashed #535353;
+  border-radius: 12px;
+  color: #ffffff;
+  margin-bottom: 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.file-input:hover,
+input[type="file"]:hover {
+  border-color: #1DB954;
+  background: linear-gradient(135deg, #282828 0%, #1a1a1a 100%);
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.2);
+}
+
+input[type="file"]::file-selector-button {
+  background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+  color: #000000;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 500px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  margin-right: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: linear-gradient(135deg, #1ed760 0%, #1fdf64 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(29, 185, 84, 0.4);
+}
+
+/* ==================== PREVIEW CONTAINER ==================== */
+.preview-container {
+  margin-bottom: 40px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  border-radius: 24px;
+  padding: 48px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.8),
+    0 0 80px rgba(29, 185, 84, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Animated background gradient */
+.preview-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(29, 185, 84, 0.08) 0%,
+    transparent 50%
+  );
+  animation: rotate 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Spotlight effect */
+.preview-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(29, 185, 84, 0.03) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  pointer-events: none;
+}
+
+.image-preview {
+  width: 100%;
+  max-width: 700px;
+  border-radius: 16px;
+  margin: 0 auto 32px auto;
+  display: block;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.9),
+    0 10px 30px rgba(29, 185, 84, 0.2),
+    0 0 60px rgba(29, 185, 84, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 1;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 3D tilt effect on hover */
+.image-preview:hover {
+  transform: scale(1.05) translateY(-8px) rotateX(2deg);
+  box-shadow: 
+    0 40px 80px rgba(0, 0, 0, 1),
+    0 20px 50px rgba(29, 185, 84, 0.4),
+    0 0 100px rgba(29, 185, 84, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(29, 185, 84, 0.3);
+}
+
+/* Reflection effect under image */
+.image-preview::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 10%;
+  right: 10%;
+  height: 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 100%
+  );
+  filter: blur(10px);
+  opacity: 0.5;
+  border-radius: 50%;
+}
+
+.button-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== RESULTS CONTAINER ==================== */
+.results-container {
+  margin-top: 40px;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== VIBE RESULT CARD ==================== */
+.vibe-result {
+  background: linear-gradient(135deg, #1DB954 0%, #1ed760 50%, #1fdf64 100%) !important;
+  border: none !important;
+  border-radius: 16px !important;
+  padding: 48px 32px !important;
+  text-align: center;
+  margin-bottom: 40px !important;
+  box-shadow: 0 12px 32px rgba(29, 185, 84, 0.4), 0 0 60px rgba(29, 185, 84, 0.2) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.vibe-result::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.3; }
+}
+
+.vibe-result h3 {
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 12px !important;
+  position: relative;
+  z-index: 1;
+}
+
+.vibe-result p {
+  color: #000000 !important;
+  font-size: 56px !important;
+  font-weight: 900 !important;
+  margin: 20px 0 32px 0 !important;
+  letter-spacing: -0.05em;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ==================== TRACK SELECTION ==================== */
+.results-container > div > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.results-container h3 {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* ==================== SUCCESS MESSAGE ==================== */
+div[style*="d4edda"] {
+  background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%) !important;
+  color: #000000 !important;
+  padding: 20px 24px !important;
+  border-radius: 12px !important;
+  margin: 20px 0 !important;
+  text-align: center;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(29, 185, 84, 0.3);
+  border: none !important;
+}
+
+div[style*="d4edda"] a {
+  color: #000000 !important;
+  font-weight: 800 !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+div[style*="d4edda"] a:hover {
+  text-decoration: none !important;
+}
+
+/* ==================== TRACK GRID ==================== */
+.results-container > div > div:last-child {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* ==================== TRACK ITEM ==================== */
+.results-container > div > div:last-child > div {
+  background: linear-gradient(135deg, #181818 0%, #1a1a1a 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 12px !important;
+  padding: 16px 20px !important;
+  transition: all 0.3s cubic-bezier(0.3, 0, 0.5, 1) !important;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.results-container > div > div:last-child > div:hover {
+  background: linear-gradient(135deg, #282828 0%, #2a2a2a 100%) !important;
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Selected Track */
+.results-container > div > div:last-child > div[style*="f0fcf4"] {
+  background: linear-gradient(135deg, #1a3a25 0%, #1e4a2e 100%) !important;
+  border: 2px solid #1DB954 !important;
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.2);
+}
+
+.results-container > div > div:last-child > div[style*="f0fcf4"]:hover {
+  background: linear-gradient(135deg, #1e4a2e 0%, #245a38 100%) !important;
+  box-shadow: 0 0 30px rgba(29, 185, 84, 0.3);
+}
+
+/* ==================== CHECKBOX ==================== */
+input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin-right: 20px;
+  cursor: pointer;
+  accent-color: #1DB954;
+  border-radius: 4px;
+}
+
+/* ==================== TRACK IMAGE ==================== */
+.results-container img {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 6px !important;
+  margin-right: 20px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.results-container > div > div:last-child > div:hover img {
+  transform: scale(1.05);
+}
+
+/* ==================== TRACK INFO ==================== */
+.results-container > div > div:last-child > div > div {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.results-container > div > div:last-child > div > div > p:first-child {
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  margin-bottom: 6px !important;
+  line-height: 1.4;
+}
+
+.results-container > div > div:last-child > div > div > p:last-child {
+  color: #b3b3b3 !important;
+  font-size: 14px !important;
+  margin: 0 !important;
+  line-height: 1.4;
+}
+
+/* ==================== TRACK LINK ==================== */
+.results-container a {
+  color: #1DB954 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  margin-left: 16px;
+  padding: 10px 20px;
+  border-radius: 500px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.results-container a:hover {
+  background: #1DB954;
+  color: #000000 !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+/* ==================== COLOR PALETTE ==================== */
+.results-container > h4 {
+  color: #b3b3b3 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-top: 56px !important;
+  margin-bottom: 20px !important;
+}
+
+.palette-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.color-swatch-container {
+  flex: 0 0 auto;
+}
+
+.color-swatch {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s cubic-bezier(0.3, 0, 0.5, 1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.color-swatch:hover {
+  transform: translateY(-8px) scale(1.15);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==================== SCROLLBAR ==================== */
+::-webkit-scrollbar {
+  width: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #282828 0%, #1a1a1a 100%);
+  border-radius: 7px;
+  border: 3px solid #121212;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #3e3e3e 0%, #282828 100%);
+}
+
+/* ==================== LOADING ANIMATION ==================== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+button:disabled::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: #b3b3b3;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-left: 8px;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+  .analyzer-container {
+    padding: 24px 16px;
+  }
+
+  .analyzer-container h2 {
+    font-size: 28px;
+  }
+
+  .vibe-result {
+    padding: 32px 24px !important;
+  }
+
+  .vibe-result p {
+    font-size: 40px !important;
+  }
+
+  .results-container h3 {
+    font-size: 22px;
+  }
+
+  button {
+    padding: 12px 28px;
+    font-size: 13px;
+  }
+
+  .color-swatch {
+    width: 70px;
+    height: 70px;
+  }
+
+  .results-container img {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .preview-container {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .analyzer-container h2 {
+    font-size: 24px;
+  }
+
+  .vibe-result p {
+    font-size: 32px !important;
+  }
+
+  .results-container h3 {
+    font-size: 18px;
+  }
+
+  .color-swatch {
+    width: 60px;
+    height: 60px;
+  }
+}
