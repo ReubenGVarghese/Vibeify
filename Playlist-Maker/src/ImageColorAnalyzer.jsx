@@ -11,10 +11,14 @@ import { rgbToHsl } from './utils/colorUtils';
 // CONFIGURATION
 // ==============================
 const CLIENT_ID = "63bd0e7b611444869ac6b21783049842";
-const REDIRECT_URI = "http://127.0.0.1:8888/";
+const REDIRECT_URI = window.location.hostname === 'localhost' 
+  ? "http://localhost:3000/" 
+  : `${window.location.origin}/`;
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const SCOPES = ["user-read-private", "playlist-modify-public", "playlist-modify-private"];
-const BACKEND_BASE_URL = "http://localhost:8889";
+const BACKEND_BASE_URL = window.location.hostname === 'localhost'
+  ? "http://localhost:3000/api"
+  : `${window.location.origin}/api`;;
 
 // ==============================
 // VIBE TO SEARCH QUERIES MAPPING
