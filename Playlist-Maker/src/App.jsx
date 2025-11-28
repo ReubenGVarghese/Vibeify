@@ -8,7 +8,7 @@ function App() {
   return (
     // You can add global site headers or footers here
     <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Vibeify</h1>
+
       
       {/* RENDER your component here */}
       <ImageColorAnalyzer />
