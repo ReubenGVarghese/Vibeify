@@ -74,13 +74,13 @@ button {
 
 /* Primary Green Button */
 .analyze-button {
-  background: #1DB954;
-  color: #000000;
+  background: #1DB954 !important;
+  color: #000000 !important;
   font-weight: 800;
 }
 
 .analyze-button:hover:not(:disabled) {
-  background: #1ed760;
+  background: #1ed760 !important;
   transform: scale(1.04);
 }
 
@@ -89,24 +89,25 @@ button {
 }
 
 .analyze-button:disabled {
-  background: #535353;
-  color: #b3b3b3;
+  background: #535353 !important;
+  color: #b3b3b3 !important;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-/* Login Button - Black with Green Border */
-button[style*="backgroundColor: black"] {
-  background: #000000 !important;
-  color: #1DB954 !important;
-  border: 1px solid #1DB954 !important;
+/* Login Button - Black Background with Green Text */
+button[style*="backgroundColor"] {
+  background: #1DB954 !important;
+  color: #000000 !important;
+  border: none !important;
   padding: 10px 24px !important;
   font-size: 13px !important;
 }
 
-button[style*="backgroundColor: black"]:hover {
-  background: #1DB954 !important;
+button[style*="backgroundColor"]:hover {
+  background: #1ed760 !important;
   color: #000000 !important;
+  transform: scale(1.04);
 }
 
 /* Logout Button */
@@ -117,6 +118,7 @@ button[style*="textDecoration: underline"] {
   font-size: 13px !important;
   font-weight: 600 !important;
   text-decoration: none !important;
+  border: none !important;
 }
 
 button[style*="textDecoration: underline"]:hover {
