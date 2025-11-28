@@ -5,7 +5,8 @@
   "framework": "vite",
   "functions": {
     "api/**/*.js": {
-      "runtime": "nodejs20.x"
+      "memory": 1024,
+      "maxDuration": 10
     }
   },
   "rewrites": [
